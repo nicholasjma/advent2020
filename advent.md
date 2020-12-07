@@ -14,28 +14,31 @@ jupyter:
 ---
 
 ```python
-import numpy as np
-import pandas as pd
-import re
 import math
 import operator
-from functools import reduce
-import yaml
-from itertools import count, combinations
+import re
+
 import attr
+import numpy as np
+import pandas as pd
+import yaml
+
+from collections import Counter
+from functools import reduce
+from itertools import count, combinations
 ```
 
 ## Day 1
 
 ```python
 with open("input.txt") as f:
-    l = [int(x) for x in f.read().split("\n")[:-1]]
+    l = [int(x) for x in f.read().splitlines()]
 ```
 
 ```python
 def get_combo(l, s, k):
     l = set(l)
-    for pair in combinations(l,  k - 1):
+    for pair in combinations(l, k - 1):
         if s - sum(pair) in l:
             return np.prod([*pair, s - sum(pair)])
 ```
@@ -52,23 +55,23 @@ get_combo(l, 2020, 3)
 
 ```python
 def valid(s):
-    m = re.match(r"(\d+)-(\d+) ([a-z]): (.*)", s)
-    a, b, l, s = m.groups()
+    a, b, l, s = re.split(": |-| ", s)
     a, b = int(a), int(b)
     n = sum(c == l for c in s)
     return a <= n <= b
 
+
 with open("input2.txt") as f:
-    l = f.read().split("\n")[:-1]
+    l = f.read().splitlines()
     print(sum(map(valid, l)))
 ```
 
 ```python
 def valid2(s):
-    m = re.match(r"(\d+)-(\d+) ([a-z]): (.*)", s)
-    a, b, l, s = m.groups()
+    a, b, l, s = re.split(": |-| ", s)
     a, b = int(a), int(b)
     return (s[a - 1] == l) ^ (s[b - 1] == l)
+
 
 with open("input2.txt") as f:
     l = f.read().split("\n")[:-1]
@@ -81,8 +84,10 @@ with open("input2.txt") as f:
 class cstr(str):
     def __getitem__(self, key):
         return super().__getitem__(key % len(self))
+
     def is_tree(self, idx):
         return self[idx] == "#"
+
 
 def trees(l, d, r):
     return sum(l[d * i].is_tree(r * i) for i in range(len(l)) if i * d < len(l))
@@ -90,13 +95,13 @@ def trees(l, d, r):
 
 ```python
 with open("input3.txt") as f:
-    l = [cstr(x) for x in f.read().split("\n") if x != ""]
+    l = [cstr(x) for x in f.read().splitlines()]
 trees(l, 1, 3)
 ```
 
 ```python
 with open("input3.txt") as f:
-    l = [cstr(x) for x in f.read().split("\n") if x != ""]
+    l = [cstr(x) for x in f.read().splitlines()]
 slopes = [(1, 1), (3, 1), (5, 1), (7, 1), (1, 2)]
 np.prod([trees(l, d, r) for r, d in slopes])
 ```
@@ -114,6 +119,8 @@ class Passport:
     ecl = attr.ib()
     pid = attr.ib()
     cid = attr.ib(default="")
+
+
 out = 0
 with open("input4.txt") as f:
     lines = f.read()[:-1].split("\n\n")
@@ -174,7 +181,7 @@ class Passport:
         if not bool(re.match("#[0-9a-f]{6}", value)):
             raise ValueError
 
-    @ecl.validator 
+    @ecl.validator
     def ecl_validator(self, attribute, value):
         if value not in {"amb", "blu", "brn", "gry", "grn", "hzl", "oth"}:
             raise ValueError
@@ -183,6 +190,7 @@ class Passport:
     def pid_validator(self, attribute, value):
         if not re.match("[0-9]{9}$", value):
             raise ValueError
+
 
 out = 0
 with open("input4.txt") as f:
@@ -217,6 +225,39 @@ with open("input4.txt") as f:
     print(sum(all(re.search(x, s) for x in REGEX) for s in lines))
 ```
 
+```python
+@attr.s
+class Passport:
+    def validator(self, attribute, value):
+        if not re.match(REGEX[attribute.name], value):
+            raise ValueError
+
+    byr = attr.ib(validator=validator)
+    iyr = attr.ib(validator=validator)
+    eyr = attr.ib(validator=validator)
+    hgt = attr.ib(validator=validator)
+    hcl = attr.ib(validator=validator)
+    ecl = attr.ib(validator=validator)
+    pid = attr.ib(validator=validator)
+    cid = attr.ib(default="")
+
+
+out = 0
+with open("input4.txt") as f:
+    lines = f.read()[:-1].split("\n\n")
+    for l in lines:
+        l = (l + "\n").replace("\n", " ").replace(" ", '"\n').replace(":", ': "')
+        l = "---\n" + l
+        strs = yaml.safe_load(l)
+        try:
+            Passport(**strs)
+        except (TypeError, ValueError):
+            pass
+        else:
+            out += 1
+out
+```
+
 ## Day 5
 
 ```python
@@ -226,13 +267,39 @@ def binsum(s, true):
         out <<= 1
         out += x in true
     return out
-    
+
+
 with open("input5.txt") as f:
-    seats = [binsum(s, "BR") for s in f.read().split("\n")[:-1]]
+    seats = [binsum(s, "BR") for s in f.read().splitlines()]
 max(seats)
 ```
 
 ```python
 seats = sorted(seats)
 min(a for a, b in zip(seats, seats[1:]) if b - a > 1)
+```
+
+## Day 6
+
+```python
+with open("input6.txt") as f:
+    l = f.read()[:-1].split("\n\n")
+```
+
+```python
+sum(len(set.union(set(group) - {"\n"})) for group in l)
+```
+
+```python
+sum(len(set.intersection(*map(set, group.splitlines()))) for group in l)
+```
+
+Using `collections.Counter`
+
+```python
+sum(x != "\n" for c in map(Counter, l) for x in c)
+```
+
+```python
+sum(c[x] > c.get("\n", 0) for c in map(Counter, l) for x in c)
 ```
