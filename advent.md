@@ -24,6 +24,7 @@ import pandas as pd
 import yaml
 
 from collections import Counter, defaultdict
+from copy import deepcopy
 from functools import reduce
 from itertools import count, combinations
 ```
@@ -108,9 +109,13 @@ np.prod([trees(l, d, r) for r, d in slopes])
 
 ## Day 4
 
+
+Here are solutions using attrs validators
+
 ```python
 @attr.s
 class Passport:
+    """Passport class, will error if required field is missing"""
     byr = attr.ib()
     iyr = attr.ib()
     eyr = attr.ib()
@@ -125,6 +130,7 @@ out = 0
 with open("input4.txt") as f:
     lines = f.read()[:-1].split("\n\n")
     for l in lines:
+        # coerce input to yaml format
         l = (l + "\n").replace("\n", " ").replace(" ", '"\n').replace(":", ': "')
         l = "---\n" + l
         strs = yaml.safe_load(l)
@@ -226,8 +232,8 @@ with open("input4.txt") as f:
 ```
 
 ```python
+# make regex dictionary from previous regexes
 REGEX2 = {x[:3]: x[4:] for x in REGEX}
-print(REGEX2)
 
 
 @attr.s
@@ -266,6 +272,7 @@ out
 
 ```python
 def binsum(s, true):
+    """Convert binary to integer, with true the set of characters that are 1"""
     out = 0
     for x in s:
         out <<= 1
@@ -319,26 +326,26 @@ contained = defaultdict(set)
 for x in d:
     color = re.match("^([\w ]*) bags contain", x)[1]
     for num, inner_color in re.findall(r"(\d+) (.+?) bags?[,.]", x):
+        # update contained and contains with data
         contained[inner_color].add(color)
         contains[color].append((int(num), inner_color))
 ```
 
 ```python code_folding=[]
-good = set()
-
-
 def update_good(color):
+    """Update good set with bags that contain color"""
     for col in contained[color]:
         good.add(col)
         update_good(col)
 
-
+good = set()
 update_good("shiny gold")
 len(good)
 ```
 
 ```python
 def count_bags(color):
+    """Recursively count bags contained in bag of specified color"""
     out = 0
     for num, inner_color in contains[color]:
         out += num + num * count_bags(inner_color)
@@ -352,14 +359,18 @@ count_bags("shiny gold")
 
 ```python
 class Assembly:
+    """Assembly machine for Advent of Code 2019"""
     def __init__(self, tape):
+        # either interpret tape as a filename, or as a list
         if isinstance(tape, list):
-            self.inst = tape
+            # avoid any mutation bugs
+            self.inst = deepcopy(tape)
         else:
             with open(tape) as f:
                 self.inst = [(x[:3], int(x[4:])) for x in f.read().splitlines()]
 
     def run(self):
+        """Run instructions until we either halt or loop"""
         cur, acc, ex = 0, 0, set()
         while cur not in ex:
             ex.add(cur)
@@ -371,26 +382,35 @@ class Assembly:
             elif op == "acc":
                 acc += num
                 cur += 1
-            if cur >= len(self):
+            if cur == len(self):
                 return True, acc
+            elif cur > len(self):
+                # we overshot the end
+                return False, acc
+        # if we get here, we looped
         return False, acc
 
     def replace(self, i, opmap):
+        """Replace the instruction in position i based on opmap dict"""
         op, val = self[i]
         self[i] = (opmap.get(op, op), val)
 
     def __getitem__(self, index):
+        """Return item from the tape. Return a new Assembly object if a slice."""
         if isinstance(index, slice):
             return Assembly(self.inst[index])
         return self.inst[index]
 
     def __setitem__(self, index, value):
+        """Set value in tape"""
         self.inst[index] = value
 
     def __len__(self):
+        """Return current length of tape"""
         return len(self.inst)
 
     def _print(self, sl=None):
+        """Return a string representation, optionally of a particular slice"""
         if sl is not None:
             return "\n".join(
                 f"{x} {'+' if y >= 0 else ''}{y}"
@@ -402,9 +422,11 @@ class Assembly:
             )
 
     def print(self, sl=None):
+        """Print the string representation"""
         print(self._print(sl))
 
     def __repr__(self):
+        """Return the string representation of the whole tape"""
         return self._print()
 ```
 
