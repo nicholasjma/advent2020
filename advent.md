@@ -8,9 +8,9 @@ jupyter:
       format_version: '1.2'
       jupytext_version: 1.6.0
   kernelspec:
-    display_name: Python 3
+    display_name: Python [conda env:py38]
     language: python
-    name: python3
+    name: conda-env-py38-py
 ---
 
 ```python
@@ -23,7 +23,7 @@ import numpy as np
 import pandas as pd
 import yaml
 
-from collections import Counter
+from collections import Counter, defaultdict
 from functools import reduce
 from itertools import count, combinations
 ```
@@ -226,10 +226,14 @@ with open("input4.txt") as f:
 ```
 
 ```python
+REGEX2 = {x[:3]: x[4:] for x in REGEX}
+print(REGEX2)
+
+
 @attr.s
 class Passport:
     def validator(self, attribute, value):
-        if not re.match(REGEX[attribute.name], value):
+        if not re.match(REGEX2[attribute.name], value):
             raise ValueError
 
     byr = attr.ib(validator=validator)
@@ -302,4 +306,120 @@ sum(x != "\n" for c in map(Counter, l) for x in c)
 
 ```python
 sum(c[x] > c.get("\n", 0) for c in map(Counter, l) for x in c)
+```
+
+## Day 7
+
+```python
+with open(r"input7.txt") as f:
+    d = f.read().splitlines()
+
+contains = defaultdict(list)
+contained = defaultdict(set)
+for x in d:
+    color = re.match("^([\w ]*) bags contain", x)[1]
+    for num, inner_color in re.findall(r"(\d+) (.+?) bags?[,.]", x):
+        contained[inner_color].add(color)
+        contains[color].append((int(num), inner_color))
+```
+
+```python code_folding=[]
+good = set()
+
+
+def update_good(color):
+    for col in contained[color]:
+        good.add(col)
+        update_good(col)
+
+
+update_good("shiny gold")
+len(good)
+```
+
+```python
+def count_bags(color):
+    out = 0
+    for num, inner_color in contains[color]:
+        out += num + num * count_bags(inner_color)
+    return out
+
+
+count_bags("shiny gold")
+```
+
+## Day 8
+
+```python
+class Assembly:
+    def __init__(self, tape):
+        if isinstance(tape, list):
+            self.inst = tape
+        else:
+            with open(tape) as f:
+                self.inst = [(x[:3], int(x[4:])) for x in f.read().splitlines()]
+
+    def run(self):
+        cur, acc, ex = 0, 0, set()
+        while cur not in ex:
+            ex.add(cur)
+            op, num = self[cur]
+            if op == "nop":
+                cur += 1
+            elif op == "jmp":
+                cur += num
+            elif op == "acc":
+                acc += num
+                cur += 1
+            if cur >= len(self):
+                return True, acc
+        return False, acc
+
+    def replace(self, i, opmap):
+        op, val = self[i]
+        self[i] = (opmap.get(op, op), val)
+
+    def __getitem__(self, index):
+        if isinstance(index, slice):
+            return Assembly(self.inst[index])
+        return self.inst[index]
+
+    def __setitem__(self, index, value):
+        self.inst[index] = value
+
+    def __len__(self):
+        return len(self.inst)
+
+    def _print(self, sl=None):
+        if sl is not None:
+            return "\n".join(
+                f"{x} {'+' if y >= 0 else ''}{y}"
+                for i, (x, y) in enumerate(self.inst[sl])
+            )
+        else:
+            return "\n".join(
+                f"{x} {'+' if y >= 0 else ''}{y}" for i, (x, y) in enumerate(self.inst)
+            )
+
+    def print(self, sl=None):
+        print(self._print(sl))
+
+    def __repr__(self):
+        return self._print()
+```
+
+```python
+a = Assembly("input8.txt")
+a.run()
+```
+
+```python
+a = Assembly("input8.txt")
+swap = {"nop": "jmp", "jmp": "nop"}
+for i in range(len(a)):
+    a.replace(i, swap)
+    if (h := a.run())[0]:
+        print(h)
+        break
+    a.replace(i, swap)
 ```
