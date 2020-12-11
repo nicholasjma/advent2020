@@ -537,78 +537,132 @@ solution()
 ## Day 11
 
 ```python
-from IPython.display import clear_output
+class Grid:
+    def __init__(self, l):
+        if isinstance(l, list):
+            self.l = l
+        else:
+            with open(l) as f:
+                self.l = list(map(list, f.read().splitlines()))
+        self.m = len(self.l)
+        self.n = len(self.l[0])
+        self.adj = [[self._adjacent(r, c) for c in range(self.n)] for r in range(self.m)]
+        self.adj_changes = deque()
+        
 
-DIRS = [
-    (1, 0),
-    (-1, 0),
-    (0, 1),
-    (0, -1),
-    (1, 1),
-    (1, -1),
-    (-1, 1),
-    (-1, -1)
-]
-def adjacent(row, col):
-    out = 0
-    for x, y in DIRS:
-        r, c = row + x, col + y
-        if not (0 <= r < m and 0 <= c <n):
-            continue
-        out += l[r][c] == "#"
-    return out
+    DIRS = (
+        (1, 0),
+        (-1, 0),
+        (0, 1),
+        (0, -1),
+        (1, 1),
+        (1, -1),
+        (-1, 1),
+        (-1, -1)
+    )
 
-def occupied():
-    return sum(l[r][c] == "#" for r in range(n) for c in range(n))
+    def __getitem__(self, loc):
+        r, c = loc
+        return self.l[r][c]
 
-def printseats():
-    clear_output(wait=True)
-    print("\n".join("".join(x) for x in l))
+    def __setitem__(self, loc, value):
+        row, col = loc
+        old = self.l[row][col]
+        self.l[row][col] = value
+        if old == "L" and value == "#":
+            update = 1
+        elif old == "#" and value == "L":
+            update = -1
+        else:
+            return
+        for x, y in self.DIRS:
+            r, c = row + x, col + y
+            if not (0 <= r < self.m and 0 <= c < self.n):
+                continue
+            else:
+                self.adj_changes.append((r, c, update))
+                
+    def _adjacent(self, row, col):
+        out = 0
+        for x, y in Grid.DIRS:
+            r, c = row + x, col + y
+            if not (0 <= r < self.m and 0 <= c < self.n):
+                continue
+            out += self[r,c] == "#"
+        return out
 
-def evolve(threshold=4):
-    for r in range(m):
-        for c in range(n):
-            o = adjacent(r, c)
-            if l[r][c] == "L" and o == 0:
-                lnew[r][c] = "#"
-            elif l[r][c] == "#" and o >= threshold:
-                lnew[r][c] = "L"
+    def update_adj(self):
+        while len(self.adj_changes) > 0:
+            r, c, update = self.adj_changes.pop()
+            self.adj[r][c] += update
 
-old = -1
-with open("input11.txt") as f:
-    l = list(map(list, f.read().splitlines()))
-m, n = len(l), len(l[0])
-while old != (k:=occupied()):
-    printseats()
-    old = k
-    lnew = deepcopy(l)
-    evolve()
-    l = lnew
+    def adjacent(self, row, col):
+        return self.adj[row][col]
 
-print(occupied())
+    def occupied(self):
+        return sum(self[r, c] == "#" for r in range(self.n) for c in range(self.n))
+
+    def print(self):
+        clear_output(wait=True)
+        print("\n".join("".join(x) for x in self.l))
+
+    def evolve(self, threshold=4):
+        changed = False
+        for r in range(self.m):
+            for c in range(self.n):
+                o = self.adjacent(r, c)
+                if self[r, c] == "L" and o == 0:
+                    changed = True
+                    self[r, c] = "#"
+                elif self[r, c] == "#" and o >= threshold:
+                    changed = True
+                    self[r, c] = "L"
+        self.update_adj()
+        return changed
+```
+
+```python
+g = Grid("input11.txt")
+while g.evolve():
+    g.print()
+
+print(g.occupied())
 ```
 
 ```python code_folding=[6]
-def adjacent(row, col):
-    out = 0
-    for x, y in DIRS:
-        r, c = row + x, col + y
-        while (valid:=(0 <= r < m and 0 <= c < n)) and l[r][c] == ".":
-            r, c = r + x, c + y
-        if valid and l[r][c] == "#":
-            out += 1
-    return out
+class Grid2(Grid):
+    def _adjacent(self, row, col):
+        out = 0
+        for x, y in self.DIRS:
+            r, c = row + x, col + y
+            while (valid:=(0 <= r < self.m and 0 <= c < self.n)) and self.l[r][c] == ".":
+                r, c = r + x, c + y
+            if valid and self.l[r][c] == "#":
+                out += 1
+        return out
 
-with open("input11.txt") as f:
-    l = list(map(list, f.read().splitlines()))
-old = -1
+    def evolve(self, threshold=5):
+        return super().evolve(threshold)
 
-while old != (k:=occupied()):
-    printseats()
-    old = k
-    lnew = deepcopy(l)
-    evolve(5)
-    l = lnew
+    def __setitem__(self, loc, value):
+        row, col = loc
+        old = self[row, col]
+        self.l[row][col] = value
+        if old == "L" and value == "#":
+            update = 1
+        elif old == "#" and value == "L":
+            update = -1
+        else:
+            return
+        for x, y in self.DIRS:
+            r, c = row + x, col + y
+            while (valid:=(0 <= r < self.m and 0 <= c < self.n)) and self.l[r][c] == ".":
+                r, c = r + x, c + y
+            if valid:
+                self.adj_changes.append((r, c, update))
 
-print(occupied())
+g = Grid2("input11.txt")
+while g.evolve():
+    g.print()
+print(g.occupied())
 ```
