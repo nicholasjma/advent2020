@@ -85,6 +85,7 @@ with open("input2.txt") as f:
 ```python
 class cstr(str):
     """Cylindrical string class"""
+
     def __getitem__(self, key):
         """Cylindrical getitem"""
         # Note this doesn't quite work for slices so we just use the original logic
@@ -124,6 +125,7 @@ Here are solutions using attrs validators
 @attr.s
 class Passport:
     """Passport class, will error if required field is missing"""
+
     byr = attr.ib()
     iyr = attr.ib()
     eyr = attr.ib()
@@ -346,6 +348,7 @@ def update_good(color):
         good.add(col)
         update_good(col)
 
+
 good = set()
 update_good("shiny gold")
 len(good)
@@ -368,6 +371,7 @@ count_bags("shiny gold")
 ```python
 class Assembly:
     """Assembly machine for Advent of Code 2020"""
+
     def __init__(self, tape):
         # either interpret tape as a filename, or as a list
         if isinstance(tape, list):
@@ -407,7 +411,6 @@ class Assembly:
             return None, self.acc
         return -1, self.acc
 
-
     def replace(self, i, opmap):
         """Replace the instruction in position i based on opmap dict"""
         op, val = self[i]
@@ -430,8 +433,7 @@ class Assembly:
         if sl is None:
             sl = slice()
         return "\n".join(
-            f"{x} {'+' if y >= 0 else ''}{y}"
-            for i, (x, y) in enumerate(self.inst[sl])
+            f"{x} {'+' if y >= 0 else ''}{y}" for i, (x, y) in enumerate(self.inst[sl])
         )
 
     def print(self, sl=None):
@@ -492,7 +494,7 @@ for i, x in enumerate(m[1:], start=1):
 mh = set(m)
 target = 14144619
 for idx, x in enumerate(m):
-    if (s_t:=x + target) in mh:
+    if (s_t := x + target) in mh:
         bounds = slice(idx + 1, m.index(s_t) + 1)
         break
 min(l[bounds]) + max(l[bounds])
@@ -519,9 +521,7 @@ with open("input10.txt") as f:
     l = [0] + sorted(list(map(int, f.read().splitlines())))
 sol = [0] * len(l)
 for i in range(-1, -len(l) - 1, -1):
-    sol[i] = (i == -1) + sum(
-        sol[j] for j in range(i + 1, 0) if l[i] + 3 >= l[j]
-    )
+    sol[i] = (i == -1) + sum(sol[j] for j in range(i + 1, 0) if l[i] + 3 >= l[j])
 sol[0]
 ```
 
@@ -531,6 +531,8 @@ def solution(n=0):
     return (n == len(l) - 1) + sum(
         solution(j) for j in range(n + 1, len(l)) if l[n] + 3 >= l[j]
     )
+
+
 solution()
 ```
 
@@ -546,20 +548,12 @@ class Grid:
                 self.l = list(map(list, f.read().splitlines()))
         self.m = len(self.l)
         self.n = len(self.l[0])
-        self.adj = [[self._adjacent(r, c) for c in range(self.n)] for r in range(self.m)]
+        self.adj = [
+            [self._adjacent(r, c) for c in range(self.n)] for r in range(self.m)
+        ]
         self.adj_changes = deque()
-        
 
-    DIRS = (
-        (1, 0),
-        (-1, 0),
-        (0, 1),
-        (0, -1),
-        (1, 1),
-        (1, -1),
-        (-1, 1),
-        (-1, -1)
-    )
+    DIRS = ((1, 0), (-1, 0), (0, 1), (0, -1), (1, 1), (1, -1), (-1, 1), (-1, -1))
 
     def __getitem__(self, loc):
         r, c = loc
@@ -581,14 +575,14 @@ class Grid:
                 continue
             else:
                 self.adj_changes.append((r, c, update))
-                
+
     def _adjacent(self, row, col):
         out = 0
         for x, y in Grid.DIRS:
             r, c = row + x, col + y
             if not (0 <= r < self.m and 0 <= c < self.n):
                 continue
-            out += self[r,c] == "#"
+            out += self[r, c] == "#"
         return out
 
     def update_adj(self):
@@ -635,7 +629,9 @@ class Grid2(Grid):
         out = 0
         for x, y in self.DIRS:
             r, c = row + x, col + y
-            while (valid:=(0 <= r < self.m and 0 <= c < self.n)) and self.l[r][c] == ".":
+            while (valid := (0 <= r < self.m and 0 <= c < self.n)) and self.l[r][
+                c
+            ] == ".":
                 r, c = r + x, c + y
             if valid and self.l[r][c] == "#":
                 out += 1
@@ -656,10 +652,13 @@ class Grid2(Grid):
             return
         for x, y in self.DIRS:
             r, c = row + x, col + y
-            while (valid:=(0 <= r < self.m and 0 <= c < self.n)) and self.l[r][c] == ".":
+            while (valid := (0 <= r < self.m and 0 <= c < self.n)) and self.l[r][
+                c
+            ] == ".":
                 r, c = r + x, c + y
             if valid:
                 self.adj_changes.append((r, c, update))
+
 
 g = Grid2("input11.txt")
 while g.evolve():
