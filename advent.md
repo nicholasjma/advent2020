@@ -23,10 +23,11 @@ import numpy as np
 import pandas as pd
 import yaml
 
-from collections import Counter, defaultdict
+from collections import Counter, defaultdict, deque
 from copy import deepcopy
-from functools import reduce
-from itertools import count, combinations
+from functools import reduce, lru_cache
+from itertools import count, combinations, chain
+from IPython.display import clear_output
 ```
 
 ## Day 1
@@ -75,7 +76,7 @@ def valid2(s):
 
 
 with open("input2.txt") as f:
-    l = f.read().split("\n")[:-1]
+    l = f.read().splitlines()
     print(sum(map(valid2, l)))
 ```
 
@@ -83,11 +84,18 @@ with open("input2.txt") as f:
 
 ```python
 class cstr(str):
+    """Cylindrical string class"""
     def __getitem__(self, key):
-        return super().__getitem__(key % len(self))
+        """Cylindrical getitem"""
+        # Note this doesn't quite work for slices so we just use the original logic
+        try:
+            return super().__getitem__(key % len(self))
+        except TypeError:
+            return super().__getitem__(key)
 
-    def is_tree(self, idx):
-        return self[idx] == "#"
+    def is_tree(self, idx, treechar="#"):
+        """Return True if tree in position idx"""
+        return self[idx] == treechar
 
 
 def trees(l, d, r):
@@ -214,7 +222,7 @@ with open("input4.txt") as f:
 out
 ```
 
-Here's another solution using regex for part 2
+Here's another solution using regex
 
 ```python
 REGEX = [
@@ -359,7 +367,7 @@ count_bags("shiny gold")
 
 ```python
 class Assembly:
-    """Assembly machine for Advent of Code 2019"""
+    """Assembly machine for Advent of Code 2020"""
     def __init__(self, tape):
         # either interpret tape as a filename, or as a list
         if isinstance(tape, list):
@@ -368,27 +376,37 @@ class Assembly:
         else:
             with open(tape) as f:
                 self.inst = [(x[:3], int(x[4:])) for x in f.read().splitlines()]
+        self.reset()
 
     def run(self):
         """Run instructions until we either halt or loop"""
-        cur, acc, ex = 0, 0, set()
-        while cur not in ex:
-            ex.add(cur)
-            op, num = self[cur]
-            if op == "nop":
-                cur += 1
-            elif op == "jmp":
-                cur += num
-            elif op == "acc":
-                acc += num
-                cur += 1
-            if cur == len(self):
-                return True, acc
-            elif cur > len(self):
-                # we overshot the end
-                return False, acc
-        # if we get here, we looped
-        return False, acc
+        while True:
+            out = self.step()
+            if out[0] != -1:
+                return out
+
+    def reset(self):
+        self.cur, self.acc, self.ex = 0, 0, set()
+
+    def step(self):
+        if self.cur in self.ex:
+            return (False, self.acc)
+        self.ex.add(self.cur)
+        op, num = self[self.cur]
+        if op == "nop":
+            self.cur += 1
+        elif op == "jmp":
+            self.cur += num
+        elif op == "acc":
+            self.acc += num
+            self.cur += 1
+        if self.cur == len(self):
+            return True, self.acc
+        elif self.cur > len(self):
+            # we overshot the end
+            return None, self.acc
+        return -1, self.acc
+
 
     def replace(self, i, opmap):
         """Replace the instruction in position i based on opmap dict"""
@@ -396,9 +414,7 @@ class Assembly:
         self[i] = (opmap.get(op, op), val)
 
     def __getitem__(self, index):
-        """Return item from the tape. Return a new Assembly object if a slice."""
-        if isinstance(index, slice):
-            return Assembly(self.inst[index])
+        """Return item(s) from the tape."""
         return self.inst[index]
 
     def __setitem__(self, index, value):
@@ -411,15 +427,12 @@ class Assembly:
 
     def _print(self, sl=None):
         """Return a string representation, optionally of a particular slice"""
-        if sl is not None:
-            return "\n".join(
-                f"{x} {'+' if y >= 0 else ''}{y}"
-                for i, (x, y) in enumerate(self.inst[sl])
-            )
-        else:
-            return "\n".join(
-                f"{x} {'+' if y >= 0 else ''}{y}" for i, (x, y) in enumerate(self.inst)
-            )
+        if sl is None:
+            sl = slice()
+        return "\n".join(
+            f"{x} {'+' if y >= 0 else ''}{y}"
+            for i, (x, y) in enumerate(self.inst[sl])
+        )
 
     def print(self, sl=None):
         """Print the string representation"""
@@ -436,12 +449,166 @@ a.run()
 ```
 
 ```python
-a = Assembly("input8.txt")
 swap = {"nop": "jmp", "jmp": "nop"}
 for i in range(len(a)):
+    a.reset()
+    # replace ith instruction. Note that nothing happens unless it's nop or jmp
     a.replace(i, swap)
-    if (h := a.run())[0]:
-        print(h)
+    try:
+        if (h := a.run())[0]:
+            print(h)
+            break
+    finally:
+        a.replace(i, swap)
+```
+
+## Day 9
+
+```python
+with open("input9.txt") as f:
+    l = list(map(int, f.read().splitlines()))
+recent, l = deque(l[:25]), l[25:]
+
+for n in l:
+    if not any(n - m in recent and n - m != m for m in recent):
+        print(n)
         break
-    a.replace(i, swap)
+    recent.popleft()
+    recent.append(n)
+```
+
+```python
+with open("input9.txt") as f:
+    l = list(map(int, f.read().splitlines()))
+```
+
+```python
+m = deepcopy(l)
+for i, x in enumerate(m[1:], start=1):
+    m[i] += m[i - 1]
+```
+
+```python
+mh = set(m)
+target = 14144619
+for idx, x in enumerate(m):
+    if (s_t:=x + target) in mh:
+        bounds = slice(idx + 1, m.index(s_t) + 1)
+        break
+min(l[bounds]) + max(l[bounds])
+```
+
+## Day 10
+
+```python
+with open("input10.txt") as f:
+    l = sorted(list(map(int, f.read().splitlines())))
+c = Counter(y - x for x, y in zip([0] + l, l + [max(l) + 3]))
+c[1] * c[3]
+```
+
+Or we could use pandas
+
+```python
+l = pd.read_csv("input10.txt", header=None)[0].sort_values().to_list()
+pd.Series([0] + l + [l[-1] + 3]).diff().value_counts().prod()
+```
+
+```python
+with open("input10.txt") as f:
+    l = [0] + sorted(list(map(int, f.read().splitlines())))
+sol = [0] * len(l)
+for i in range(-1, -len(l) - 1, -1):
+    sol[i] = (i == -1) + sum(
+        sol[j] for j in range(i + 1, 0) if l[i] + 3 >= l[j]
+    )
+sol[0]
+```
+
+```python
+@lru_cache
+def solution(n=0):
+    return (n == len(l) - 1) + sum(
+        solution(j) for j in range(n + 1, len(l)) if l[n] + 3 >= l[j]
+    )
+solution()
+```
+
+## Day 11
+
+```python
+from IPython.display import clear_output
+
+DIRS = [
+    (1, 0),
+    (-1, 0),
+    (0, 1),
+    (0, -1),
+    (1, 1),
+    (1, -1),
+    (-1, 1),
+    (-1, -1)
+]
+def adjacent(row, col):
+    out = 0
+    for x, y in DIRS:
+        r, c = row + x, col + y
+        if not (0 <= r < m and 0 <= c <n):
+            continue
+        out += l[r][c] == "#"
+    return out
+
+def occupied():
+    return sum(l[r][c] == "#" for r in range(n) for c in range(n))
+
+def printseats():
+    clear_output(wait=True)
+    print("\n".join("".join(x) for x in l))
+
+def evolve(threshold=4):
+    for r in range(m):
+        for c in range(n):
+            o = adjacent(r, c)
+            if l[r][c] == "L" and o == 0:
+                lnew[r][c] = "#"
+            elif l[r][c] == "#" and o >= threshold:
+                lnew[r][c] = "L"
+
+old = -1
+with open("input11.txt") as f:
+    l = list(map(list, f.read().splitlines()))
+m, n = len(l), len(l[0])
+while old != (k:=occupied()):
+    printseats()
+    old = k
+    lnew = deepcopy(l)
+    evolve()
+    l = lnew
+
+print(occupied())
+```
+
+```python code_folding=[6]
+def adjacent(row, col):
+    out = 0
+    for x, y in DIRS:
+        r, c = row + x, col + y
+        while (valid:=(0 <= r < m and 0 <= c < n)) and l[r][c] == ".":
+            r, c = r + x, c + y
+        if valid and l[r][c] == "#":
+            out += 1
+    return out
+
+with open("input11.txt") as f:
+    l = list(map(list, f.read().splitlines()))
+old = -1
+
+while old != (k:=occupied()):
+    printseats()
+    old = k
+    lnew = deepcopy(l)
+    evolve(5)
+    l = lnew
+
+print(occupied())
 ```
