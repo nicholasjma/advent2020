@@ -13,6 +13,8 @@ jupyter:
     name: conda-env-py38-py
 ---
 
+## Imports
+
 ```python
 import math
 import operator
@@ -26,18 +28,20 @@ import yaml
 from collections import Counter, defaultdict, deque
 from copy import deepcopy
 from functools import reduce, lru_cache
-from itertools import count, combinations, chain
+from itertools import count, combinations, chain, product
 from IPython.display import clear_output
 ```
 
+<!-- #region heading_collapsed=true -->
 ## Day 1
+<!-- #endregion -->
 
-```python
+```python hidden=true
 with open("input.txt") as f:
     l = [int(x) for x in f.read().splitlines()]
 ```
 
-```python
+```python hidden=true
 def get_combo(l, s, k):
     l = set(l)
     for pair in combinations(l, k - 1):
@@ -45,17 +49,19 @@ def get_combo(l, s, k):
             return np.prod([*pair, s - sum(pair)])
 ```
 
-```python
+```python hidden=true
 get_combo(l, 2020, 2)
 ```
 
-```python
+```python hidden=true
 get_combo(l, 2020, 3)
 ```
 
+<!-- #region heading_collapsed=true -->
 ## Day 2
+<!-- #endregion -->
 
-```python
+```python hidden=true
 def valid(s):
     a, b, l, s = re.split(": |-| ", s)
     a, b = int(a), int(b)
@@ -68,7 +74,7 @@ with open("input2.txt") as f:
     print(sum(map(valid, l)))
 ```
 
-```python
+```python hidden=true
 def valid2(s):
     a, b, l, s = re.split(": |-| ", s)
     a, b = int(a), int(b)
@@ -80,9 +86,11 @@ with open("input2.txt") as f:
     print(sum(map(valid2, l)))
 ```
 
+<!-- #region heading_collapsed=true -->
 ## Day 3
+<!-- #endregion -->
 
-```python
+```python hidden=true
 class cstr(str):
     """Cylindrical string class"""
 
@@ -103,25 +111,28 @@ def trees(l, d, r):
     return sum(l[d * i].is_tree(r * i) for i in range(len(l)) if i * d < len(l))
 ```
 
-```python
+```python hidden=true
 with open("input3.txt") as f:
     l = [cstr(x) for x in f.read().splitlines()]
 trees(l, 1, 3)
 ```
 
-```python
+```python hidden=true
 with open("input3.txt") as f:
     l = [cstr(x) for x in f.read().splitlines()]
 slopes = [(1, 1), (3, 1), (5, 1), (7, 1), (1, 2)]
 np.prod([trees(l, d, r) for r, d in slopes])
 ```
 
+<!-- #region heading_collapsed=true -->
 ## Day 4
+<!-- #endregion -->
 
-
+<!-- #region hidden=true -->
 Here are solutions using attrs validators
+<!-- #endregion -->
 
-```python
+```python hidden=true
 @attr.s
 class Passport:
     """Passport class, will error if required field is missing"""
@@ -153,7 +164,7 @@ with open("input4.txt") as f:
 out
 ```
 
-```python
+```python hidden=true
 @attr.s
 class Passport:
     byr = attr.ib()
@@ -224,9 +235,11 @@ with open("input4.txt") as f:
 out
 ```
 
+<!-- #region hidden=true -->
 Here's another solution using regex
+<!-- #endregion -->
 
-```python
+```python hidden=true
 REGEX = [
     r"byr:(?:19[2-9]\d|200[0-2])\b",
     r"iyr:20(?:1\d|20)\b",
@@ -241,7 +254,7 @@ with open("input4.txt") as f:
     print(sum(all(re.search(x, s) for x in REGEX) for s in lines))
 ```
 
-```python
+```python hidden=true
 # make regex dictionary from previous regexes
 REGEX2 = {x[:3]: x[4:] for x in REGEX}
 
@@ -278,9 +291,11 @@ with open("input4.txt") as f:
 out
 ```
 
+<!-- #region heading_collapsed=true -->
 ## Day 5
+<!-- #endregion -->
 
-```python
+```python hidden=true
 def binsum(s, true):
     """Convert binary to integer, with true the set of characters that are 1"""
     out = 0
@@ -295,39 +310,45 @@ with open("input5.txt") as f:
 max(seats)
 ```
 
-```python
+```python hidden=true
 seats = sorted(seats)
 min(a for a, b in zip(seats, seats[1:]) if b - a > 1)
 ```
 
+<!-- #region heading_collapsed=true -->
 ## Day 6
+<!-- #endregion -->
 
-```python
+```python hidden=true
 with open("input6.txt") as f:
     l = f.read()[:-1].split("\n\n")
 ```
 
-```python
+```python hidden=true
 sum(len(set.union(set(group) - {"\n"})) for group in l)
 ```
 
-```python
+```python hidden=true
 sum(len(set.intersection(*map(set, group.splitlines()))) for group in l)
 ```
 
+<!-- #region hidden=true -->
 Using `collections.Counter`
+<!-- #endregion -->
 
-```python
+```python hidden=true
 sum(x != "\n" for c in map(Counter, l) for x in c)
 ```
 
-```python
+```python hidden=true
 sum(c[x] > c.get("\n", 0) for c in map(Counter, l) for x in c)
 ```
 
+<!-- #region heading_collapsed=true -->
 ## Day 7
+<!-- #endregion -->
 
-```python
+```python hidden=true
 with open(r"input7.txt") as f:
     d = f.read().splitlines()
 
@@ -341,7 +362,7 @@ for x in d:
         contains[color].append((int(num), inner_color))
 ```
 
-```python code_folding=[]
+```python code_folding=[] hidden=true
 def update_good(color):
     """Update good set with bags that contain color"""
     for col in contained[color]:
@@ -354,7 +375,7 @@ update_good("shiny gold")
 len(good)
 ```
 
-```python
+```python hidden=true
 def count_bags(color):
     """Recursively count bags contained in bag of specified color"""
     out = 0
@@ -366,9 +387,11 @@ def count_bags(color):
 count_bags("shiny gold")
 ```
 
+<!-- #region heading_collapsed=true -->
 ## Day 8
+<!-- #endregion -->
 
-```python
+```python hidden=true
 class Assembly:
     """Assembly machine for Advent of Code 2020"""
 
@@ -445,12 +468,12 @@ class Assembly:
         return self._print()
 ```
 
-```python
+```python hidden=true
 a = Assembly("input8.txt")
 a.run()
 ```
 
-```python
+```python hidden=true
 swap = {"nop": "jmp", "jmp": "nop"}
 for i in range(len(a)):
     a.reset()
@@ -464,9 +487,11 @@ for i in range(len(a)):
         a.replace(i, swap)
 ```
 
+<!-- #region heading_collapsed=true -->
 ## Day 9
+<!-- #endregion -->
 
-```python
+```python hidden=true
 with open("input9.txt") as f:
     l = list(map(int, f.read().splitlines()))
 recent, l = deque(l[:25]), l[25:]
@@ -479,18 +504,18 @@ for n in l:
     recent.append(n)
 ```
 
-```python
+```python hidden=true
 with open("input9.txt") as f:
     l = list(map(int, f.read().splitlines()))
 ```
 
-```python
+```python hidden=true
 m = deepcopy(l)
 for i, x in enumerate(m[1:], start=1):
     m[i] += m[i - 1]
 ```
 
-```python
+```python hidden=true
 mh = set(m)
 target = 14144619
 for idx, x in enumerate(m):
@@ -500,23 +525,27 @@ for idx, x in enumerate(m):
 min(l[bounds]) + max(l[bounds])
 ```
 
+<!-- #region heading_collapsed=true -->
 ## Day 10
+<!-- #endregion -->
 
-```python
+```python hidden=true
 with open("input10.txt") as f:
     l = sorted(list(map(int, f.read().splitlines())))
 c = Counter(y - x for x, y in zip([0] + l, l + [max(l) + 3]))
 c[1] * c[3]
 ```
 
+<!-- #region hidden=true -->
 Or we could use pandas
+<!-- #endregion -->
 
-```python
+```python hidden=true
 l = pd.read_csv("input10.txt", header=None)[0].sort_values().to_list()
 pd.Series([0] + l + [l[-1] + 3]).diff().value_counts().prod()
 ```
 
-```python
+```python hidden=true
 with open("input10.txt") as f:
     l = [0] + sorted(list(map(int, f.read().splitlines())))
 sol = [0] * len(l)
@@ -525,7 +554,7 @@ for i in range(-1, -len(l) - 1, -1):
 sol[0]
 ```
 
-```python
+```python hidden=true
 @lru_cache
 def solution(n=0):
     return (n == len(l) - 1) + sum(
@@ -536,11 +565,13 @@ def solution(n=0):
 solution()
 ```
 
+<!-- #region heading_collapsed=true -->
 ## Day 11
+<!-- #endregion -->
 
-```python
+```python hidden=true
 class Grid:
-    def __init__(self, l):
+    def __init__(self, l, threshold=4):
         if isinstance(l, list):
             self.l = l
         else:
@@ -551,9 +582,19 @@ class Grid:
         self.adj = [
             [self._adjacent(r, c) for c in range(self.n)] for r in range(self.m)
         ]
-        self.adj_changes = deque()
+        self.adj_changes = defaultdict(lambda: 0)
+        self.affected = {
+            (r, c) for c in range(self.n) for r in range(self.m) if self[r, c] != "."
+        }
+        self.steps = 0
+        self.threshold = threshold
 
     DIRS = ((1, 0), (-1, 0), (0, 1), (0, -1), (1, 1), (1, -1), (-1, 1), (-1, -1))
+    FORMAT = {
+        "#": "\033[32m█",
+        "L": " ",
+        ".": "\033[37m█",
+    }
 
     def __getitem__(self, loc):
         r, c = loc
@@ -563,6 +604,7 @@ class Grid:
         row, col = loc
         old = self.l[row][col]
         self.l[row][col] = value
+        self.affected.add(loc)
         if old == "L" and value == "#":
             update = 1
         elif old == "#" and value == "L":
@@ -571,12 +613,16 @@ class Grid:
             return
         for x, y in self.DIRS:
             r, c = row + x, col + y
-            if not (0 <= r < self.m and 0 <= c < self.n):
+            if not (0 <= r < self.m) or not (0 <= c < self.n):
                 continue
             else:
-                self.adj_changes.append((r, c, update))
+                self.adj_changes[r, c] += update
+                new_adj = self.adj[r][c] + self.adj_changes[r, c]
+                self.affected.add((r, c))
 
     def _adjacent(self, row, col):
+        if self[row, col] == ".":
+            return 0
         out = 0
         for x, y in Grid.DIRS:
             r, c = row + x, col + y
@@ -586,9 +632,9 @@ class Grid:
         return out
 
     def update_adj(self):
-        while len(self.adj_changes) > 0:
-            r, c, update = self.adj_changes.pop()
-            self.adj[r][c] += update
+        for (r, c), v in self.adj_changes.items():
+            self.adj[r][c] += v
+        self.adj_changes = defaultdict(lambda: 0)
 
     def adjacent(self, row, col):
         return self.adj[row][col]
@@ -596,72 +642,373 @@ class Grid:
     def occupied(self):
         return sum(self[r, c] == "#" for r in range(self.n) for c in range(self.n))
 
-    def print(self):
-        clear_output(wait=True)
-        print("\n".join("".join(x) for x in self.l))
+    def print(self, override=False):
+        if override or self.steps % 2 == 0:
+            clear_output(wait=True)
+            print(f"Generation {self.steps}    Occupied {self.occupied()}")
+            print(
+                "\033[32;40m"
+                + "\n".join("".join(map(self.FORMAT.__getitem__, x)) for x in self.l)
+            )
 
-    def evolve(self, threshold=4):
-        changed = False
-        for r in range(self.m):
-            for c in range(self.n):
-                o = self.adjacent(r, c)
-                if self[r, c] == "L" and o == 0:
-                    changed = True
-                    self[r, c] = "#"
-                elif self[r, c] == "#" and o >= threshold:
-                    changed = True
-                    self[r, c] = "L"
+    def evolve(self):
+        to_check = self.affected
+        self.affected = set()
+        for r, c in to_check:
+            o = self.adjacent(r, c)
+            if self[r, c] == "L" and o == 0:
+                self[r, c] = "#"
+            elif self[r, c] == "#" and o >= self.threshold:
+                self[r, c] = "L"
         self.update_adj()
-        return changed
-```
+        self.steps += 1
+        return len(self.affected) > 0
 
-```python
-g = Grid("input11.txt")
+
+g = Grid("input11.txt", 4)
 while g.evolve():
     g.print()
-
-print(g.occupied())
 ```
 
-```python code_folding=[6]
+```python code_folding=[6] hidden=true
 class Grid2(Grid):
-    def _adjacent(self, row, col):
-        out = 0
-        for x, y in self.DIRS:
-            r, c = row + x, col + y
-            while (valid := (0 <= r < self.m and 0 <= c < self.n)) and self.l[r][
-                c
-            ] == ".":
-                r, c = r + x, c + y
-            if valid and self.l[r][c] == "#":
-                out += 1
-        return out
+    def __init__(self, l, threshold=5):
+        self.vis = {}
+        super().__init__(l, threshold)
 
-    def evolve(self, threshold=5):
-        return super().evolve(threshold)
+    def _adjacent(self, row, col):
+        if self[row, col] == ".":
+            return 0
+        out = 0
+        for direction in self.DIRS:
+            vis = self.get_vis(row, col, direction)
+            if vis is not None:
+                out += self[vis] == "#"
+        return out
 
     def __setitem__(self, loc, value):
         row, col = loc
         old = self[row, col]
         self.l[row][col] = value
+        self.affected.add(loc)
         if old == "L" and value == "#":
             update = 1
         elif old == "#" and value == "L":
             update = -1
         else:
             return
-        for x, y in self.DIRS:
-            r, c = row + x, col + y
-            while (valid := (0 <= r < self.m and 0 <= c < self.n)) and self.l[r][
-                c
-            ] == ".":
-                r, c = r + x, c + y
-            if valid:
-                self.adj_changes.append((r, c, update))
+        for direction in self.DIRS:
+            vis = self.get_vis(row, col, direction)
+            if vis is not None:
+                self.adj_changes[vis] += update
+
+    #                 self.affected.add(vis)
+
+    def get_vis(self, row, col, direction):
+        if (row, col, direction) in self.vis:
+            return self.vis[(row, col, direction)]
+        x, y = direction
+        r, c = row + x, col + y
+        while (0 <= r < self.m and 0 <= c < self.n) and self.l[r][c] == ".":
+            r, c = r + x, c + y
+        if 0 <= r < self.m and 0 <= c < self.n:
+            # cache results
+            self.vis[(row, col, direction)] = (r, c)
+            # if we are the first seat in a directionk, the reciprocal is true
+            self.vis[(r, c, (-direction[0], -direction[1]))] = (row, col)
+            return r, c
+        else:
+            return None
 
 
 g = Grid2("input11.txt")
 while g.evolve():
     g.print()
-print(g.occupied())
+```
+
+<!-- #region heading_collapsed=true -->
+## Day 12
+<!-- #endregion -->
+
+```python hidden=true
+with open("input12.txt") as f:
+    l = f.read().splitlines()
+```
+
+```python hidden=true
+px, py = 0, 0
+DIRS = "ESWN"
+DIR = ((1, 0), (0, -1), (-1, 0), (0, 1))
+ROT = dict(zip("LR", (-1, 1)))
+DIRS = dict(zip(DIRS, DIR))
+facing = 0
+for x in l:
+    d, num = x[0], int(x[1:])
+    if d in "NSEW":
+        px, py = px + DIRS[d][0] * num, py + DIRS[d][1] * num
+    elif d in "LR":
+        facing = (facing + ROT[d] * num // 90) % 4
+    elif d == "F":
+        px, py = px + DIR[facing][0] * num, py + DIR[facing][1] * num
+abs(px) + abs(py)
+```
+
+```python hidden=true
+def rotate_left(x, y, num=1):
+    if num == 0:
+        return x, y
+    else:
+        return rotate_left(-y, x, num=num - 1)
+
+
+def rotate_right(x, y, num=1):
+    if num == 0:
+        return x, y
+    else:
+        return rotate_right(y, -x, num=num - 1)
+```
+
+```python hidden=true
+px, py = 10, 1
+tx, ty = 0, 0
+for x in l:
+    d, num = x[0], int(x[1:])
+    if d in "NSEW":
+        px, py = px + DIRS[d][0] * num, py + DIRS[d][1] * num
+    elif d == "L":
+        px, py = rotate_left(px, py, num // 90)
+    elif d == "R":
+        px, py = rotate_right(px, py, num // 90)
+    elif d == "F":
+        tx += num * px
+        ty += num * py
+abs(tx) + abs(ty)
+```
+
+<!-- #region hidden=true -->
+Let's use complex numbers!
+<!-- #endregion -->
+
+```python hidden=true
+p = 0
+DIRS = "ESWN"
+DIR = (1, -1j, -1, 1j)
+ROT = dict(zip("LR", (1, -1)))
+DIRS = dict(zip(DIRS, DIR))
+facing = 1
+for x in l:
+    d, num = x[0], int(x[1:])
+    if d in "NSEW":
+        p += DIRS[d] * num
+    elif d in "LR":
+        facing *= 1j ** (ROT[d] * num // 90)
+    elif d == "F":
+        p += facing * num
+abs(p.real) + abs(p.imag)
+```
+
+```python hidden=true
+p = 10 + 1j
+t = 0
+for x in l:
+    d, num = x[0], int(x[1:])
+    if d in "NSEW":
+        p += DIRS[d] * num
+    elif d in "LR":
+        p *= (1j) ** (ROT[d] * num // 90)
+    elif d == "F":
+        t += p * num
+abs(t.real) + abs(t.imag)
+```
+
+<!-- #region heading_collapsed=true -->
+## Day 13
+<!-- #endregion -->
+
+```python hidden=true
+with open("input13.txt") as f:
+    l = int(f.readline()[:-1])
+    ll = f.read()[:-1].split(",")
+ll = [int(x) if x != "x" else None for x in ll]
+d = dict(zip(ll, range(0, -len(ll), -1)))
+del d[None]
+```
+
+<!-- #region hidden=true -->
+best = 2 * reduce(lambda a, b: a * b, d.keys())
+best_bus = 0
+for bus in d.keys():
+    new = ((l // bus) + 1) * bus if l % bus != 0 else l
+    if new < best:
+        best = new
+        best_bus = bus
+best_bus * (best - l)
+<!-- #endregion -->
+
+```python hidden=true
+def chinese_remainder(n, a):
+    s = 0
+    prod = reduce(lambda a, b: a * b, n)
+    for n_i, a_i in zip(n, a):
+        p = prod // n_i
+        s += a_i * mul_inv(p, n_i) * p
+    return s % prod
+
+
+def mul_inv(a, b):
+    b0 = b
+    x0, x1 = 0, 1
+    if b == 1:
+        return 1
+    while a > 1:
+        q = a // b
+        a, b = b, a % b
+        x0, x1 = x1 - q * x0, x0
+    if x1 < 0:
+        x1 += b0
+    return x1
+```
+
+```python hidden=true
+chinese_remainder(d.keys(), d.values())
+```
+
+```python hidden=true
+n = 0
+step = 1
+for bus, i in d.items():
+    for c in count(n, step):
+        if (c - i) % bus == 0:
+            n = c
+            break
+    step *= bus
+n
+```
+
+<!-- #region heading_collapsed=true -->
+## Day 14
+<!-- #endregion -->
+
+```python hidden=true
+class Mem(dict):
+    def __setitem__(self, key, value):
+        global mask
+        x = int(mask.replace("0", "1").replace("X", "0"), 2)
+        maskb = int(mask.replace("X", "0"), 2)
+        value = (((value | x) ^ x)) | maskb
+        super().__setitem__(key, value)
+
+mem = Mem()
+with open("input14.txt") as f:
+    text = f.read()
+    l = ["mask" + x for x in text.split("mask")[1:]]
+    l = [re.sub("mask = ([01X]+)", r'mask = "\1"', x) for x in l]
+for x in l:
+    exec(x)
+sum(mem.values())
+```
+
+```python hidden=true
+class Mem2(dict):
+    def __setitem__(self, key, value):
+        global mask
+        X_pos = [i for i, x in enumerate(mask) if x == "X"]
+        X_bin = [2 ** (len(mask) - 1 - x) for x in X_pos]
+        X_mask = sum(X_bin)
+        maskb = int(mask.replace("X", "0"), 2)
+        key |= maskb
+        key |= X_mask
+        key ^= X_mask
+        for digits in product(*(range(2) for _ in range(len(X_pos)))):
+            super().__setitem__(
+                key + sum(x * y for x, y in zip(X_bin, digits)),
+                value,
+            )
+mem = Mem2()
+for x in l:
+    exec(x)
+sum(mem.values())
+```
+
+<!-- #region heading_collapsed=true -->
+## Day 15
+<!-- #endregion -->
+
+```python hidden=true
+import numpy as np
+
+from numba import njit
+from numba import types
+from numba.typed import Dict
+
+
+nums = np.array([11,0,1,10,5,19], dtype=np.int64)
+
+@njit("int64(int64[:], int64)")
+def day15(nums, N):
+    last = np.full(N, -1, dtype=np.int64)
+    for i, x in enumerate(nums[:-1]):
+        last[x] = i
+    buffer = nums[-1]
+    for i in range(len(nums) - 1, N - 1):
+        y = 0 if last[buffer] == -1 else i - last[buffer]
+        last[buffer], buffer = i, y
+    return buffer
+
+print(day15(nums, 2020))
+print(day15(nums, 30000000))
+```
+
+## Day 16
+
+```python
+def parse_tickets(filename="input16.txt"):
+    global rules, nearby, your
+    rules = {}
+    with open("input16.txt") as f:
+        while True:
+            text = f.readline()
+            if text.startswith("\n"):
+                break
+            k, v = text.split(": ")
+            rules[k] = v[:-1].split(" or ")
+        for k, v in rules.items():
+            rules[k] = [tuple(map(int, x.split("-"))) for x in v]
+        f.readline()  # "your ticket"
+        your = list(map(int, f.readline().split(",")[:-1]))
+        f.readline()  # blank line
+        f.readline()  # "nearby tickets"
+        nearby = f.read().splitlines()
+        nearby = [tuple(map(int, x.split(","))) for x in nearby]
+
+def is_possible(n, rules):
+    return any(x <= n <= y for v in rules.values() for x, y in v)
+
+parse_tickets()
+sum(num for ticket in nearby for num in ticket if not is_possible(num, rules))
+```
+
+```python
+nearby_possible = [x for x in nearby if all(is_possible(y, rules) for y in x)]
+
+def check_field(n, rules):
+    return any(x <= n <= y for x, y in rules)
+
+possible_fields = [
+    {
+        k for k, v in rules.items()
+        if all(check_field(x[idx], v) for x in nearby_possible)
+    }
+    for idx in range(20)
+]
+try_order = sorted(range(20), key=lambda x: len(possible_fields[x]))
+sol = [""]  * 20
+for idx in try_order:
+    if len(possible_fields[idx]) == 1:
+        sol[idx] = tuple(possible_fields[idx])[0]
+        for i in range(20):
+            if i != idx:
+                possible_fields[i].discard(sol[idx])
+
+math.prod(v for k, v in zip(sol, your) if k.startswith("depart"))
 ```
