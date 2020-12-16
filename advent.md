@@ -959,9 +959,11 @@ print(day15(nums, 2020))
 print(day15(nums, 30000000))
 ```
 
+<!-- #region heading_collapsed=true -->
 ## Day 16
+<!-- #endregion -->
 
-```python
+```python hidden=true
 def parse_tickets(filename="input16.txt"):
     global rules, nearby, your
     rules = {}
@@ -971,9 +973,8 @@ def parse_tickets(filename="input16.txt"):
             if text.startswith("\n"):
                 break
             k, v = text.split(": ")
-            rules[k] = v[:-1].split(" or ")
-        for k, v in rules.items():
-            rules[k] = [tuple(map(int, x.split("-"))) for x in v]
+            v = [tuple(map(int, x.split("-"))) for x in v[:-1].split(" or ")]
+            rules[k] = v
         f.readline()  # "your ticket"
         your = list(map(int, f.readline().split(",")[:-1]))
         f.readline()  # blank line
@@ -988,7 +989,7 @@ parse_tickets()
 sum(num for ticket in nearby for num in ticket if not is_possible(num, rules))
 ```
 
-```python
+```python hidden=true
 nearby_possible = [x for x in nearby if all(is_possible(y, rules) for y in x)]
 
 def check_field(n, rules):
@@ -1005,10 +1006,15 @@ try_order = sorted(range(20), key=lambda x: len(possible_fields[x]))
 sol = [""]  * 20
 for idx in try_order:
     if len(possible_fields[idx]) == 1:
-        sol[idx] = tuple(possible_fields[idx])[0]
+        [sol[idx]] = possible_fields[idx]
         for i in range(20):
-            if i != idx:
-                possible_fields[i].discard(sol[idx])
+            possible_fields[i].discard(sol[idx])
 
 math.prod(v for k, v in zip(sol, your) if k.startswith("depart"))
+```
+
+## Day 17
+
+```python
+
 ```
