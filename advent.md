@@ -20,6 +20,7 @@ import math
 import operator
 import re
 
+import aocd
 import attr
 import numpy as np
 import pandas as pd
@@ -1400,40 +1401,34 @@ print_board(board)
 ## Day 21
 
 ```python
-import aocd
-
 l = Puzzle(year=2020, day=21).input_data.splitlines()
 a = {}
 safe_words = set()
 for line in l:
     words, allergens = line[:-1].split(" (contains ")
-    words = words.split(" ")
+    words, allergens = words.split(" "), allergens.split(", ")
     safe_words |= set(words)
-    allergens = allergens.split(", ")
     for allergen in allergens:
-        if allergen not in a:
-            a[allergen] = set(words)
-        else:
-            a[allergen] &= set(words)
-safe_words = safe_words - set(x for v in a.values() for x in v)
+        a[allergen] = a.get(allergen, k:=set(words)) & k
+safe_words -= set(x for v in a.values() for x in v)
+```
+
+```python
 out = 0
 for line in l:
     words, allergens = line[:-1].split(" (contains ")
-    words = words.split(" ")
-    allergens = allergens.split(", ")
+    words, allergens = words.split(" "), allergens.split(", ")
     out += sum(word in safe_words for word in words)
 print(out)
 ```
 
 ```python
 keys = sorted(a.keys(), key=lambda x: len(a[x]))
-for key in keys:
-    if len(a[key]) == 1:
-        allergen = next(iter(a[key]))
-        for key2 in keys:
-            if key2 != key:
-                a[key2].discard(allergen)
-print(",".join([next(iter(a[x])) for x in sorted(a.keys())]))
+while max(map(len, a.values())) > 1:
+    for key in (x for x in keys if len(a[x]) == 1):
+        for key2 in (x for x in keys if x != key):
+            a[key2].discard(next(iter(a[key])))
+print(",".join(next(iter(a[x])) for x in sorted(a.keys())))
 ```
 
 ## Day 22
