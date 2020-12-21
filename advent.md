@@ -27,9 +27,12 @@ import yaml
 
 from collections import Counter, defaultdict, deque
 from copy import deepcopy
-from functools import reduce, lru_cache
-from itertools import count, combinations, chain, product
+from functools import lru_cache, reduce
+from io import StringIO
+from itertools import chain, combinations, count, product
+
 from IPython.display import clear_output
+from aocd.models import Puzzle
 ```
 
 <!-- #region heading_collapsed=true -->
@@ -37,8 +40,7 @@ from IPython.display import clear_output
 <!-- #endregion -->
 
 ```python hidden=true
-with open("input.txt") as f:
-    l = [int(x) for x in f.read().splitlines()]
+l = [int(x) for x in Puzzle(year=2020, day=1).input_data.splitlines()]
 ```
 
 ```python hidden=true
@@ -70,7 +72,7 @@ def valid(s):
 
 
 with open("input2.txt") as f:
-    l = f.read().splitlines()
+    l = Puzzle(year=2020, day=2).input_data.splitlines()
     print(sum(map(valid, l)))
 ```
 
@@ -81,9 +83,8 @@ def valid2(s):
     return (s[a - 1] == l) ^ (s[b - 1] == l)
 
 
-with open("input2.txt") as f:
-    l = f.read().splitlines()
-    print(sum(map(valid2, l)))
+l = Puzzle(year=2020, day=2).input_data.splitlines()
+print(sum(map(valid2, l)))
 ```
 
 <!-- #region heading_collapsed=true -->
@@ -112,14 +113,12 @@ def trees(l, d, r):
 ```
 
 ```python hidden=true
-with open("input3.txt") as f:
-    l = [cstr(x) for x in f.read().splitlines()]
+l = [cstr(x) for x in Puzzle(year=2020, day=3).input_data.splitlines()]
 trees(l, 1, 3)
 ```
 
 ```python hidden=true
-with open("input3.txt") as f:
-    l = [cstr(x) for x in f.read().splitlines()]
+l = [cstr(x) for x in Puzzle(year=2020, day=3).input_data.splitlines()]
 slopes = [(1, 1), (3, 1), (5, 1), (7, 1), (1, 2)]
 np.prod([trees(l, d, r) for r, d in slopes])
 ```
@@ -148,19 +147,18 @@ class Passport:
 
 
 out = 0
-with open("input4.txt") as f:
-    lines = f.read()[:-1].split("\n\n")
-    for l in lines:
-        # coerce input to yaml format
-        l = (l + "\n").replace("\n", " ").replace(" ", '"\n').replace(":", ': "')
-        l = "---\n" + l
-        strs = yaml.safe_load(l)
-        try:
-            Passport(**strs)
-        except (TypeError, ValueError):
-            pass
-        else:
-            out += 1
+lines = Puzzle(year=2020, day=4).input_data[:-1].split("\n\n")
+for l in lines:
+    # coerce input to yaml format
+    l = (l + "\n").replace("\n", " ").replace(" ", '"\n').replace(":", ': "')
+    l = "---\n" + l
+    strs = yaml.safe_load(l)
+    try:
+        Passport(**strs)
+    except (TypeError, ValueError):
+        pass
+    else:
+        out += 1
 out
 ```
 
@@ -220,18 +218,17 @@ class Passport:
 
 
 out = 0
-with open("input4.txt") as f:
-    lines = f.read()[:-1].split("\n\n")
-    for l in lines:
-        l = (l + "\n").replace("\n", " ").replace(" ", '"\n').replace(":", ': "')
-        l = "---\n" + l
-        strs = yaml.safe_load(l)
-        try:
-            Passport(**strs)
-        except (TypeError, ValueError):
-            pass
-        else:
-            out += 1
+lines = Puzzle(year=2020, day=4).input_data[:-1].split("\n\n")
+for l in lines:
+    l = (l + "\n").replace("\n", " ").replace(" ", '"\n').replace(":", ': "')
+    l = "---\n" + l
+    strs = yaml.safe_load(l)
+    try:
+        Passport(**strs)
+    except (TypeError, ValueError):
+        pass
+    else:
+        out += 1
 out
 ```
 
@@ -249,9 +246,8 @@ REGEX = [
     r"ecl:(amb|blu|brn|gry|grn|hzl|oth)\b",
     r"pid:\d{9}\b",
 ]
-with open("input4.txt") as f:
-    lines = f.read()[:-1].split("\n\n")
-    print(sum(all(re.search(x, s) for x in REGEX) for s in lines))
+lines = Puzzle(year=2020, day=4).input_data[:-1].split("\n\n")
+print(sum(all(re.search(x, s) for x in REGEX) for s in lines))
 ```
 
 ```python hidden=true
@@ -276,18 +272,17 @@ class Passport:
 
 
 out = 0
-with open("input4.txt") as f:
-    lines = f.read()[:-1].split("\n\n")
-    for l in lines:
-        l = (l + "\n").replace("\n", " ").replace(" ", '"\n').replace(":", ': "')
-        l = "---\n" + l
-        strs = yaml.safe_load(l)
-        try:
-            Passport(**strs)
-        except (TypeError, ValueError):
-            pass
-        else:
-            out += 1
+lines = Puzzle(year=2020, day=4).input_data[:-1].split("\n\n")
+for l in lines:
+    l = (l + "\n").replace("\n", " ").replace(" ", '"\n').replace(":", ': "')
+    l = "---\n" + l
+    strs = yaml.safe_load(l)
+    try:
+        Passport(**strs)
+    except (TypeError, ValueError):
+        pass
+    else:
+        out += 1
 out
 ```
 
@@ -305,8 +300,7 @@ def binsum(s, true):
     return out
 
 
-with open("input5.txt") as f:
-    seats = [binsum(s, "BR") for s in f.read().splitlines()]
+seats = [binsum(s, "BR") for s in Puzzle(year=2020, day=5).input_data.splitlines()]
 max(seats)
 ```
 
@@ -320,8 +314,7 @@ min(a for a, b in zip(seats, seats[1:]) if b - a > 1)
 <!-- #endregion -->
 
 ```python hidden=true
-with open("input6.txt") as f:
-    l = f.read()[:-1].split("\n\n")
+l = Puzzle(year=2020, day=6).input_data[:-1].split("\n\n")
 ```
 
 ```python hidden=true
@@ -349,8 +342,7 @@ sum(c[x] > c.get("\n", 0) for c in map(Counter, l) for x in c)
 <!-- #endregion -->
 
 ```python hidden=true
-with open(r"input7.txt") as f:
-    d = f.read().splitlines()
+d = Puzzle(year=2020, day=7).input_data.splitlines()
 
 contains = defaultdict(list)
 contained = defaultdict(set)
@@ -395,14 +387,19 @@ count_bags("shiny gold")
 class Assembly:
     """Assembly machine for Advent of Code 2020"""
 
-    def __init__(self, tape):
+    def __init__(self, tape=None):
         # either interpret tape as a filename, or as a list
         if isinstance(tape, list):
             # avoid any mutation bugs
             self.inst = deepcopy(tape)
-        else:
+        elif tape is not None:
             with open(tape) as f:
                 self.inst = [(x[:3], int(x[4:])) for x in f.read().splitlines()]
+        else:
+            self.inst = [
+                (x[:3], int(x[4:]))
+                for x in Puzzle(year=2020, day=8).input_data.splitlines()
+            ]
         self.reset()
 
     def run(self):
@@ -469,7 +466,7 @@ class Assembly:
 ```
 
 ```python hidden=true
-a = Assembly("input8.txt")
+a = Assembly()
 a.run()
 ```
 
@@ -492,8 +489,7 @@ for i in range(len(a)):
 <!-- #endregion -->
 
 ```python hidden=true
-with open("input9.txt") as f:
-    l = list(map(int, f.read().splitlines()))
+l = list(map(int, Puzzle(year=2020, day=9).input_data.splitlines()))
 recent, l = deque(l[:25]), l[25:]
 
 for n in l:
@@ -505,8 +501,7 @@ for n in l:
 ```
 
 ```python hidden=true
-with open("input9.txt") as f:
-    l = list(map(int, f.read().splitlines()))
+l = list(map(int, Puzzle(year=2020, day=9).input_data.splitlines()))
 ```
 
 ```python hidden=true
@@ -530,8 +525,7 @@ min(l[bounds]) + max(l[bounds])
 <!-- #endregion -->
 
 ```python hidden=true
-with open("input10.txt") as f:
-    l = sorted(list(map(int, f.read().splitlines())))
+l = sorted(list(map(int, Puzzle(year=2020, day=10).input_data.splitlines())))
 c = Counter(y - x for x, y in zip([0] + l, l + [max(l) + 3]))
 c[1] * c[3]
 ```
@@ -541,13 +535,16 @@ Or we could use pandas
 <!-- #endregion -->
 
 ```python hidden=true
-l = pd.read_csv("input10.txt", header=None)[0].sort_values().to_list()
+l = (
+    pd.read_csv(StringIO(Puzzle(year=2020, day=10).input_data), header=None)[0]
+    .sort_values()
+    .to_list()
+)
 pd.Series([0] + l + [l[-1] + 3]).diff().value_counts().prod()
 ```
 
 ```python hidden=true
-with open("input10.txt") as f:
-    l = [0] + sorted(list(map(int, f.read().splitlines())))
+l = [0] + sorted(list(map(int, Puzzle(year=2020, day=10).input_data.splitlines())))
 sol = [0] * len(l)
 for i in range(-1, -len(l) - 1, -1):
     sol[i] = (i == -1) + sum(sol[j] for j in range(i + 1, 0) if l[i] + 3 >= l[j])
@@ -571,8 +568,10 @@ solution()
 
 ```python hidden=true
 class Grid:
-    def __init__(self, l, threshold=4):
-        if isinstance(l, list):
+    def __init__(self, l=None, threshold=4):
+        if l is None:
+            self.l = list(map(list, Puzzle(year=2020, day=11).input_data.splitlines()))
+        elif isinstance(l, list):
             self.l = l
         else:
             with open(l) as f:
@@ -665,14 +664,15 @@ class Grid:
         return len(self.affected) > 0
 
 
-g = Grid("input11.txt", 4)
+g = Grid(threshold=4)
 while g.evolve():
-    g.print()
+    pass
+g.occupied()
 ```
 
 ```python code_folding=[6] hidden=true
 class Grid2(Grid):
-    def __init__(self, l, threshold=5):
+    def __init__(self, l=None, threshold=5):
         self.vis = {}
         super().__init__(l, threshold)
 
@@ -721,9 +721,10 @@ class Grid2(Grid):
             return None
 
 
-g = Grid2("input11.txt")
+g = Grid2()
 while g.evolve():
-    g.print()
+    pass
+g.occupied()
 ```
 
 <!-- #region heading_collapsed=true -->
@@ -731,8 +732,7 @@ while g.evolve():
 <!-- #endregion -->
 
 ```python hidden=true
-with open("input12.txt") as f:
-    l = f.read().splitlines()
+l = Puzzle(year=2020, day=12).input_data.splitlines()
 ```
 
 ```python hidden=true
@@ -826,24 +826,13 @@ abs(t.real) + abs(t.imag)
 <!-- #endregion -->
 
 ```python hidden=true
-with open("input13.txt") as f:
+with StringIO(Puzzle(year=2020, day=13).input_data) as f:
     l = int(f.readline()[:-1])
     ll = f.read()[:-1].split(",")
 ll = [int(x) if x != "x" else None for x in ll]
 d = dict(zip(ll, range(0, -len(ll), -1)))
 del d[None]
 ```
-
-<!-- #region hidden=true -->
-best = 2 * reduce(lambda a, b: a * b, d.keys())
-best_bus = 0
-for bus in d.keys():
-    new = ((l // bus) + 1) * bus if l % bus != 0 else l
-    if new < best:
-        best = new
-        best_bus = bus
-best_bus * (best - l)
-<!-- #endregion -->
 
 ```python hidden=true
 def chinese_remainder(n, a):
@@ -898,11 +887,11 @@ class Mem(dict):
         value = (((value | x) ^ x)) | maskb
         super().__setitem__(key, value)
 
+
 mem = Mem()
-with open("input14.txt") as f:
-    text = f.read()
-    l = ["mask" + x for x in text.split("mask")[1:]]
-    l = [re.sub("mask = ([01X]+)", r'mask = "\1"', x) for x in l]
+text = Puzzle(year=2020, day=14).input_data
+l = ["mask" + x for x in text.split("mask")[1:]]
+l = [re.sub("mask = ([01X]+)", r'mask = "\1"', x) for x in l]
 for x in l:
     exec(x)
 sum(mem.values())
@@ -924,6 +913,8 @@ class Mem2(dict):
                 key + sum(x * y for x, y in zip(X_bin, digits)),
                 value,
             )
+
+
 mem = Mem2()
 for x in l:
     exec(x)
@@ -941,8 +932,9 @@ from numba import njit
 from numba import types
 from numba.typed import Dict
 
+nums = list(map(int, Puzzle(year=2020, day=15).input_data.split(",")))
+nums = np.array(nums, dtype=np.int64)
 
-nums = np.array([11,0,1,10,5,19], dtype=np.int64)
 
 @njit("int64(int64[:], int64)")
 def day15(nums, N):
@@ -955,6 +947,7 @@ def day15(nums, N):
         last[buffer], buffer = i, y
     return buffer
 
+
 print(day15(nums, 2020))
 print(day15(nums, 30000000))
 ```
@@ -963,11 +956,11 @@ print(day15(nums, 30000000))
 ## Day 16
 <!-- #endregion -->
 
-```python hidden=true
+```python code_folding=[5] hidden=true
 def parse_tickets(filename="input16.txt"):
     global rules, nearby, your
     rules = {}
-    with open("input16.txt") as f:
+    with StringIO(Puzzle(year=2020, day=16).input_data) as f:
         while True:
             text = f.readline()
             if text.startswith("\n"):
@@ -982,8 +975,10 @@ def parse_tickets(filename="input16.txt"):
         nearby = f.read().splitlines()
         nearby = [tuple(map(int, x.split(","))) for x in nearby]
 
+
 def is_possible(n, rules):
     return any(x <= n <= y for v in rules.values() for x, y in v)
+
 
 parse_tickets()
 sum(num for ticket in nearby for num in ticket if not is_possible(num, rules))
@@ -992,18 +987,21 @@ sum(num for ticket in nearby for num in ticket if not is_possible(num, rules))
 ```python hidden=true
 nearby_possible = [x for x in nearby if all(is_possible(y, rules) for y in x)]
 
+
 def check_field(n, rules):
     return any(x <= n <= y for x, y in rules)
 
+
 possible_fields = [
     {
-        k for k, v in rules.items()
+        k
+        for k, v in rules.items()
         if all(check_field(x[idx], v) for x in nearby_possible)
     }
     for idx in range(20)
 ]
 try_order = sorted(range(20), key=lambda x: len(possible_fields[x]))
-sol = [""]  * 20
+sol = [""] * 20
 for idx in try_order:
     if len(possible_fields[idx]) == 1:
         [sol[idx]] = possible_fields[idx]
@@ -1013,8 +1011,438 @@ for idx in try_order:
 math.prod(v for k, v in zip(sol, your) if k.startswith("depart"))
 ```
 
+<!-- #region heading_collapsed=true -->
 ## Day 17
+<!-- #endregion -->
+
+```python hidden=true
+def tsum(t1, t2):
+    return tuple([x + y for x, y in zip(t1, t2)])
+
+
+def evolve(active, shifts):
+    return {
+        point
+        for point, n in Counter(
+            tsum(point, shift) for point in active for shift in shifts
+        ).items()
+        if n == 3 or point in active and n == 2
+    }
+
+
+def day17(dim):
+    shifts = set(product(*(range(-1, 2) for _ in range(dim))))
+    shifts.discard((0,) * dim)
+    active = {
+        (i, j) + (0,) * (dim - 2)
+        for i, row in enumerate(Puzzle(year=2020, day=17).input_data.splitlines())
+        for j, c in enumerate(row)
+        if c == "#"
+    }
+    for _ in range(6):
+        active = evolve(active, shifts)
+    return len(active)
+
+
+part1, part2 = map(day17, (3, 4))
+print(part1, part2)
+
+# puzzle = Puzzle(year=2020, day=17)
+# puzzle.answer_a = part1
+# puzzle.answer_b = part2
+```
+
+<!-- #region heading_collapsed=true -->
+## Day 18
+<!-- #endregion -->
+
+```python hidden=true
+from aocd.models import Puzzle
+import aocd
+
+expr = [x.replace(" ", "") for x in Puzzle(year=2020, day=18).input_data.splitlines()]
+cur = 0
+
+
+def parse_exp(s):
+    cur = 0
+    op = None
+    if "(" in s:
+        sub = re.search(r"(\([^()]*\))", s).groups()[0]
+        res = parse_exp(sub[1:-1])
+        return parse_exp(s.replace(sub, str(res)))
+    curnum = 0
+    for i, c in enumerate(s):
+        if c == "+":
+            op = operator.add
+        elif c == "*":
+            op = operator.mul
+        elif c.isnumeric():
+            curnum = curnum * 10 + int(c)
+            if i < len(s) - 1 and s[i + 1].isnumeric():
+                continue
+            if op is not None:
+                cur = op(cur, curnum)
+                op = None
+                curnum = 0
+            else:
+                cur = curnum
+                curnum = 0
+    return cur
+
+
+part1 = sum(parse_exp(x) for x in expr)
+part1
+```
+
+```python hidden=true
+from aocd.models import Puzzle
+import aocd
+
+expr = [x.replace(" ", "") for x in Puzzle(year=2020, day=18).input_data.splitlines()]
+
+
+def parse_exp2(s):
+    cur = 0
+    op = None
+    if "(" in s:
+        sub = re.search(r"(\([^()]*\))", s).groups()[0]
+        res = parse_exp2(sub[1:-1])
+        return parse_exp2(s.replace(sub, str(res)))
+    if "+" in s:
+        m = re.search(r"(\d+)\+(\d+)", s)
+        start, stop = m.span()
+        a, b = map(int, m.groups())
+        return parse_exp2(s[:start] + str(a + b) + s[stop:])
+    curnum = 0
+    for i, c in enumerate(s):
+        if c == "*":
+            op = operator.mul
+        elif c.isnumeric():
+            curnum = curnum * 10 + int(c)
+            if i < len(s) - 1 and s[i + 1].isnumeric():
+                continue
+            if op is not None:
+                cur = op(cur, curnum)
+                op = None
+                curnum = 0
+            else:
+                cur = curnum
+                curnum = 0
+    return cur if op is None else op(cur, curnum)
+
+
+examples = {
+    "1 + (2 * 3) + (4 * (5 + 6))": 51,
+    "2 * 3 + (4 * 5)": 46,
+    "5 + (8 * 3 + 9 + 3 * 4 * 3)": 1445,
+    "5 * 9 * (7 * 3 * 3 + 9 * 3 + (8 + 6 * 4))": 669060,
+    "((2 + 4 * 9) * (6 + 9 * 8 + 6) + 6) + 2 + 4 * 2": 23340,
+}
+for example, answer in examples.items():
+    assert parse_exp2(example.replace(" ", "")) == answer
+part2 = sum(parse_exp2(x) for x in expr)
+aocd.submit(part2)
+part2
+```
+
+```python hidden=true
+expr = [x.replace(" ", "") for x in Puzzle(year=2020, day=18).input_data.splitlines()]
+
+
+class fakeint(int):
+    def __sub__(self, b):
+        return fakeint(int(self) * b)
+
+    def __add__(self, b):
+        return fakeint(int(self) + b)
+
+    def __and__(self, b):
+        return fakeint(int(self) * b)
+
+
+def parse_exp(s, mop="-"):
+    s = re.sub(r"(\d+)", r"fakeint(\1)", s)
+    s = s.replace("*", mop)
+    return eval(s)
+
+
+part1 = sum(map(parse_exp, expr))
+part2 = sum(parse_exp(x, "&") for x in expr)
+print(part1, part2)
+```
+
+<!-- #region heading_collapsed=true -->
+## Day 19
+<!-- #endregion -->
+
+```python hidden=true
+def process_input():
+    rules = {}
+    msgs = []
+    for line in l:
+        if ":" in line:
+            if '"' in line:
+                k, c = re.match(r'(\d+): "(.+)"', line).groups()
+                rules[int(k)] = c
+            elif "|" not in line:
+                nums = list(map(int, re.split(": | ", line)))
+                rules[nums[0]] = [tuple(nums[1:])]
+            elif "|" in line:
+                nums = re.split(": | \| ", line)
+                rules[int(nums[0])] = list(
+                    map(lambda x: tuple(map(int, x.split(" "))), nums[1:])
+                )
+        elif len(line) > 0:
+            msgs.append(line)
+    return rules, msgs
+
+
+def rule_cat(rules):
+    return "|".join("".join(p) for p in product(*map(lambda x: x.split("|"), rules)))
+
+
+def evaluate(rules, k):
+    if not isinstance(rules[k], str):
+        rules[k] = "|".join(
+            rule_cat(evaluate(rules, x) for x in option) for option in rules[k]
+        )
+    return rules[k]
+```
+
+```python hidden=true
+l = Puzzle(year=2020, day=19).input_data.splitlines()
+rules, msgs = process_input()
+msgs_good = set(evaluate(rules, 0).split("|"))
+len(set(msgs) & msgs_good)
+```
+
+```python hidden=true
+def count_pat(msg, rule):
+    m = re.sub(fr"^({rule})*", "", msg)
+    return (len(msg) - len(m)) // rule.find("|"), m
+
+
+def check_part2(msg):
+    c42, msg = count_pat(msg, rules[42])
+    c31, msg = count_pat(msg, rules[31])
+    return len(msg) == 0 and c42 > c31 >= 1
+
+
+sum(check_part2(x) for x in msgs)
+```
+
+<!-- #region heading_collapsed=true -->
+## Day 20
+<!-- #endregion -->
+
+```python code_folding=[] hidden=true
+class symdict(defaultdict):
+    def __setitem__(self, key, value):
+        key = min(key, key[::-1])
+        super().__setitem__(key, value)
+
+    def __getitem__(self, key):
+        key = min(key, key[::-1])
+        return super().__getitem__(key)
+
+    def __contains__(self, key):
+        key = min(key, key[::-1])
+        return super().__contains__(key)
+
+    def get(self, key, dvalue):
+        key = min(key, key[::-1])
+        return super().get(key, dvalue)
+
+def get_sides(tile):
+    return (
+        tile[0],
+        tile[-1][::-1],
+        "".join(x[0] for x in tile)[::-1],
+        "".join(x[-1] for x in tile),
+    )
+
+
+def get_unmatched(tnum):
+    return sum(tnum in v and len(v) == 1 for k, v in sides.items())
+
+
+def rotate(tile):
+    return ["".join(row[x] for row in tile[::-1]) for x in range(len(tile))]
+
+
+def flip(tile):
+    return tile[::-1]
+
+
+def orientations(tile):
+    yield tile
+    for i in range(7):
+        if i == 3:
+            tile = flip(tile)
+        else:
+            tile = rotate(tile)
+        yield tile
+
+
+def fit_left(tile, ltile):
+    s = "".join(x[-1] for x in ltile)
+    for tile in orientations(tile):
+        if tile[-1] == s:
+            return rotate(tile)
+
+
+def fit_top(tile, ttile):
+    s = "".join(ttile[-1])
+    for tile in orientations(tile):
+        if tile[0] == s:
+            return tile
+
+
+def orient_corner(tile):
+    for tile in orientations(tile):
+        left = "".join(x[0] for x in tile)
+        if len(sides.get(tile[0], [])) == len(sides.get(left, [])) == 1:
+            return tile
+
+
+def remove_borders(tile):
+    return [row[1:-1] for row in tile[1:-1]]
+
+
+def print_board(board):
+    print("\n".join(map(lambda x: "".join(x), board)))
+```
+
+```python code_folding=[] hidden=true
+l = Puzzle(year=2020, day=20).input_data.split("\n\n")
+tiles = {}
+sides = symdict(set)
+
+for tile in l:
+    tiles[int(tile[5:9])] = tile[11:].splitlines()
+for num, tile in tiles.items():
+    for side in get_sides(tile):
+        sides[side].add(num)
+
+N = int(len(tiles) ** 0.5)
+board = [[None for _ in range(N)] for _ in range(N)]
+corners = {tile for tile in tiles if get_unmatched(tile) == 2}
+pool =  set(tiles)
+
+# part 1
+print(math.prod(corners))
+```
+
+```python code_folding=[125] hidden=true
+N = int(len(tiles) ** 0.5)
+board = [[None for _ in range(N)] for _ in range(N)]
+
+# Put one corner in in correct orientation
+fc = next(iter(corners))
+board[0][0] = orient_corner(tiles[fc])
+corners.remove(fc)
+pool.remove(fc)
+K = len(board[0][0])
+
+
+# Solve the jigsaw!
+
+# top
+for i in range(N):
+    for j in range(N):
+        if i == j == 0:
+            continue
+        for tile in pool:
+            if i == 0:
+                m = fit_left(tiles[tile], board[i][j - 1])
+            else:
+                m = fit_top(tiles[tile], board[i - 1][j])
+            if m:
+                board[i][j] = m
+                pool.remove(tile)
+                break
+
+# Glue the pieces together into list of lists
+board = [
+    list("".join(board[prow][pcol][row][1:-1] for pcol in range(N)))
+    for prow in range(N)
+    for row in range(1, K - 1)
+]
+K -= 2
+
+# Get sea monster positions
+SM = ["                  # ", "#    ##    ##    ###", " #  #  #  #  #  #   "]
+SMC = [(r, i) for r, row in enumerate(SM) for i, c in enumerate(row) if c == "#"]
+
+
+def sea_monster(board, i, j):
+    if all(board[i + x][j + y] == "#" for x, y in SMC):
+        for x, y in SMC:
+            board[i + x][j + y] = "O"
+
+
+# Check for sea monsters and fill with O's
+sea_monsters = 0
+for o in range(9):
+    for i in range(len(board) - 2):
+        for j in range(len(board) - 19):
+            sea_monster(board, i, j)
+    if o == 4:
+        board = flip(board)
+    else:
+        board = rotate(board)
+        board = list(map(list, board))
+print(sum(c == "#" for row in board for c in row))
+print_board(board)
+```
+
+## Day 21
 
 ```python
+import aocd
 
+l = Puzzle(year=2020, day=21).input_data.splitlines()
+a = {}
+safe_words = set()
+for line in l:
+    words, allergens = line[:-1].split(" (contains ")
+    words = words.split(" ")
+    safe_words |= set(words)
+    allergens = allergens.split(", ")
+    for allergen in allergens:
+        if allergen not in a:
+            a[allergen] = set(words)
+        else:
+            a[allergen] &= set(words)
+safe_words = safe_words - set(x for v in a.values() for x in v)
+out = 0
+for line in l:
+    words, allergens = line[:-1].split(" (contains ")
+    words = words.split(" ")
+    allergens = allergens.split(", ")
+    out += sum(word in safe_words for word in words)
+print(out)
 ```
+
+```python
+keys = sorted(a.keys(), key=lambda x: len(a[x]))
+for key in keys:
+    if len(a[key]) == 1:
+        allergen = next(iter(a[key]))
+        for key2 in keys:
+            if key2 != key:
+                a[key2].discard(allergen)
+print(",".join([next(iter(a[x])) for x in sorted(a.keys())]))
+```
+
+## Day 22
+
+
+## Day 23
+
+
+## Day 24
+
+
+## Day 25
