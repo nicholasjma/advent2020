@@ -1335,7 +1335,7 @@ pool =  set(tiles)
 print(math.prod(corners))
 ```
 
-```python code_folding=[125] hidden=true
+```python code_folding=[] hidden=true
 N = int(len(tiles) ** 0.5)
 board = [[None for _ in range(N)] for _ in range(N)]
 
@@ -1433,6 +1433,63 @@ print(",".join(next(iter(a[x])) for x in sorted(a.keys())))
 
 ## Day 22
 
+```python code_folding=[]
+l = Puzzle(year=2020, day=22).input_data.split("\n\n")
+p1, p2 = deque(map(int, l[0].split("\n")[:0:-1])), deque(map(int, l[1].split("\n")[:0:-1]))
+```
+
+```python
+def combat(p1, p2):
+    p1, p2 = deepcopy(p1), deepcopy(p2)
+    while p1 and p2:
+        c1, c2 = p1.pop(), p2.pop()
+        if c1 > c2:
+            p1.appendleft(c1)
+            p1.appendleft(c2)
+        else:
+            p2.appendleft(c2)
+            p2.appendleft(c1)
+    return sum(x * y for x, y in enumerate(p1 if p1 else p2, start=1))
+```
+
+```python
+combat(p1, p2)
+```
+
+```python
+def _recursive_combat(p1, p2):
+    p1, p2 = deepcopy(p1), deepcopy(p2)
+    states = set()
+    while True:
+        newstate = (tuple(p1), tuple(p2))
+        if len(p1) == 0:
+            return 2, p2, p1
+        if len(p2) == 0:
+            return 1, p1, p2
+        if newstate in states:
+            return 1, p1, p2
+        else:
+            states.add(newstate)
+        c1, c2 = p1.pop(), p2.pop()
+        if c1 > len(p1) or c2 > len(p2):
+            result =  (1, p1, p2) if c1 > c2 else (2, p2, p1)
+        elif c1 <= len(p1) and c2 <= len(p2):
+            result = _recursive_combat(deque(list(p1)[-c1:]), deque(list(p2)[-c2:]))
+        if result[0] == 1:
+            p1.appendleft(c1)
+            p1.appendleft(c2)
+        else:
+            p2.appendleft(c2)
+            p2.appendleft(c1)
+
+def recursive_combat(p1, p2):
+    _, windeck, _ = _recursive_combat(p1, p2)
+    return  sum(x * y for x, y in enumerate(windeck, start=1))
+```
+
+```python
+recursive_combat(p1, p2)
+```
 
 ## Day 23
 
